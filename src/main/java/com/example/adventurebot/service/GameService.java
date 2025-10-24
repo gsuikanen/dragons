@@ -21,7 +21,7 @@ public class GameService {
         this.apiClient = apiClient;
     }
 
-    public int playGame() {
+    public GameState playGame() {
         GameState game = apiClient.startGame();
         log.info("Game {}", game);
         String gameId = game.getGameId();
@@ -41,7 +41,7 @@ public class GameService {
 
         log.info("Game result: {}", game);
 
-        return game.getScore();
+        return game;
     }
 
     public Ad pickBestAd(List<Ad> ads) {

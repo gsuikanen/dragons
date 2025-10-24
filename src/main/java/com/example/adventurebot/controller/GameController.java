@@ -1,5 +1,6 @@
 package com.example.adventurebot.controller;
 
+import com.example.adventurebot.model.GameState;
 import com.example.adventurebot.service.GameService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +18,8 @@ public class GameController {
     }
 
     @PostMapping("/start")
-    public ResponseEntity<Integer> startGame() {
-        int score = gameService.playGame();
-        return ResponseEntity.ok(score);
+    public ResponseEntity<GameState> startGame() {
+        GameState result = gameService.playGame();
+        return ResponseEntity.ok(result);
     }
 }
