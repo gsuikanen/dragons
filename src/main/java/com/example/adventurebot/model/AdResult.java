@@ -23,7 +23,7 @@ public class AdResult {
         this.message = message;
     }
 
-    public boolean getSuccess() {
+    public boolean isSuccess() {
         return success;
     }
 
