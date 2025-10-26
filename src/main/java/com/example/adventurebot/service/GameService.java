@@ -14,23 +14,22 @@ public class GameService {
 
     private final GameApiClient apiClient;
     private final StrategyService strategyService;
-    private final GameHistoryService historyService;
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
 
-    public GameService(GameApiClient apiClient, StrategyService strategyService, GameHistoryService historyService) {
+    public GameService(GameApiClient apiClient, StrategyService strategyService) {
         this.apiClient = apiClient;
         this.strategyService = strategyService;
-        this.historyService = historyService;
     }
 
-    public GameState playGame() {
-        GameState game = apiClient.startGame();
-        String gameId = game.getGameId();
+    public GameState startNewGame() {
+        return apiClient.startGame();
+    }
 
+    public GameState playGame(GameState game) {
         while (game.hasLivesLeft()) {
-            List<Ad> ads = apiClient.getAds(gameId);
+            List<Ad> ads = apiClient.getAds(game.getGameId());
             Ad best = strategyService.pickBestAd(ads);
-            AdResult result = apiClient.solveAd(gameId, best.getAdId());
+            AdResult result = apiClient.solveAd(game.getGameId(), best.getAdId());
             game.setGold(result.getGold());
             game.setScore(result.getScore());
             game.setLives(result.getLives());
@@ -39,7 +38,6 @@ public class GameService {
         }
 
         log.info("Game result: {}", game);
-        historyService.saveGameResult(game);
         return game;
     }
 }
