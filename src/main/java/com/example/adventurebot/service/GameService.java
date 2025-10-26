@@ -4,12 +4,14 @@ import com.example.adventurebot.client.GameApiClient;
 import com.example.adventurebot.model.Ad;
 import com.example.adventurebot.model.AdResult;
 import com.example.adventurebot.model.GameState;
+import com.example.adventurebot.model.ShoppingResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class GameService {
@@ -21,26 +23,51 @@ public class GameService {
         this.apiClient = apiClient;
     }
 
+
+
     public GameState playGame() {
         GameState game = apiClient.startGame();
-        log.info("Game {}", game);
         String gameId = game.getGameId();
-        log.info("Starting game {}", gameId);
+
+        String[] powerUps = {"cs", "gas", "wax", "tricks", "wingpot"};
+        String[] megaPowerUps = {"ch", "rf", "iron", "mtrix", "wingpotmax"};
+        Random rand = new Random();
 
         while (game.hasLivesLeft()) {
             List<Ad> ads = apiClient.getAds(gameId);
-            log.info("Received {} ads", ads.size());
             Ad best = pickBestAd(ads);
-            log.info("Picked ad: {}", best);
             AdResult result = apiClient.solveAd(gameId, best.getAdId());
-            log.info("Result: {}", result);
             game.setGold(result.getGold());
             game.setScore(result.getScore());
             game.setLives(result.getLives());
+            game.setTurn(result.getTurn());
+
+            if (game.getGold() >= 400) {
+                String randomItem = megaPowerUps[rand.nextInt(megaPowerUps.length)];
+                ShoppingResult shoppingResult = apiClient.purchaseItem(gameId, randomItem);
+                log.info("Purchase {}: {}", randomItem, shoppingResult);
+                game.setGold(shoppingResult.getGold());
+                game.setLevel(shoppingResult.getLevel());
+                game.setTurn(shoppingResult.getTurn());
+            } else if (game.getGold() >= 150) {
+                String randomItem = powerUps[rand.nextInt(powerUps.length)];
+                ShoppingResult shoppingResult = apiClient.purchaseItem(gameId, randomItem);
+                log.info("Purchase {}: {}", randomItem, shoppingResult);
+                game.setGold(shoppingResult.getGold());
+                game.setLevel(shoppingResult.getLevel());
+                game.setTurn(shoppingResult.getTurn());
+            }
+
+            if (game.getLives() == 1 && game.getGold() >= 50) {
+                ShoppingResult shoppingResult = apiClient.purchaseItem(gameId, "hpot");
+                log.info("Purchase hpot: {}", shoppingResult);
+                game.setGold(shoppingResult.getGold());
+                game.setLives(shoppingResult.getLives());
+                game.setTurn(shoppingResult.getTurn());
+            }
         }
 
         log.info("Game result: {}", game);
-
         return game;
     }
 
