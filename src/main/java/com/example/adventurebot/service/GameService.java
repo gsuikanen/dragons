@@ -14,11 +14,13 @@ public class GameService {
 
     private final GameApiClient apiClient;
     private final StrategyService strategyService;
+    private final GameHistoryService historyService;
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
 
-    public GameService(GameApiClient apiClient, StrategyService strategyService) {
+    public GameService(GameApiClient apiClient, StrategyService strategyService, GameHistoryService historyService) {
         this.apiClient = apiClient;
         this.strategyService = strategyService;
+        this.historyService = historyService;
     }
 
     public GameState playGame() {
@@ -37,6 +39,7 @@ public class GameService {
         }
 
         log.info("Game result: {}", game);
+        historyService.saveGameResult(game);
         return game;
     }
 }

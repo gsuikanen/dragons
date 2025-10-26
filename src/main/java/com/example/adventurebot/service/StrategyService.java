@@ -3,8 +3,6 @@ package com.example.adventurebot.service;
 import com.example.adventurebot.client.GameApiClient;
 import com.example.adventurebot.model.Ad;
 import com.example.adventurebot.model.GameState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -13,7 +11,6 @@ import java.util.Random;
 
 @Service
 public class StrategyService {
-    private static final Logger log = LoggerFactory.getLogger(StrategyService.class);
     private final GameApiClient apiClient;
     private final Random random = new Random();
 
@@ -56,7 +53,6 @@ public class StrategyService {
 
     private void purchaseItem(GameState game, String item) {
         var shoppingResult = apiClient.purchaseItem(game.getGameId(), item);
-        log.info("Purchase {}: {}", item, shoppingResult);
 
         game.setGold(shoppingResult.getGold());
         game.setLevel(shoppingResult.getLevel());
